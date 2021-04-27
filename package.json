@@ -1,0 +1,24 @@
+{
+  "name": "Odyssey_Maker",
+  "version": "1.0.0",
+  "description": "2D Platformer Editor",
+  "author": "J. McGhee",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "babel-core": "6",
+    "babel-loader": "7.0.0",
+    "babel-preset-env": "^1.7.0",
+    "copy-webpack-plugin": "^6.1.0",
+    "webpack": "^4.44.1",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "chunk-splitting-plugin": "^2.4.1",
+    "html-webpack-plugin": "^4.4.1",
+    "phaser": "^3.50.1",
+    "phaser-animated-tiles": "^2.0.2",
+    "phaser3-merged-input": "^1.2.4",
+    "webpack-cli": "3.3.5"
+  }
+}
