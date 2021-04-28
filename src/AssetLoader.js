@@ -9,17 +9,17 @@ export class AssetLoader extends Phaser.Scene {
     // const costumeList = [1, 6, 5, 4];
     const costumeList = [0, 0, 0, 0];
 
-    // this.load.image('backgroundX', 'assets/graphics/backgrounds/Background1_X.png');
-    // this.load.image('backgroundY', 'assets/graphics/backgrounds/Background1_Y.png');
+    this.load.image('backgroundX', 'assets/graphics/backgrounds/Background0_X.png');
+    this.load.image('backgroundY', 'assets/graphics/backgrounds/Background0_Y.png');
 
-    this.load.spritesheet('backgroundX', 'assets/graphics/backgrounds/Background0_X.png', {
-      frameWidth: 1024,
-      frameHeight: 1024
-    });
-    this.load.spritesheet('backgroundY', 'assets/graphics/backgrounds/Background0_Y.png', {
-      frameWidth: 1024,
-      frameHeight: 1024
-    });
+    // this.load.spritesheet('backgroundX', 'assets/graphics/backgrounds/Background0_X.png', {
+    //   frameWidth: 1024,
+    //   frameHeight: 1024
+    // });
+    // this.load.spritesheet('backgroundY', 'assets/graphics/backgrounds/Background0_Y.png', {
+    //   frameWidth: 1024,
+    //   frameHeight: 1024
+    // });
 
     this.load.spritesheet('player-icons', 'assets/ui/player_icons.png', {
       frameWidth: 133,

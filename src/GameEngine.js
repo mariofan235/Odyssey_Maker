@@ -54,6 +54,8 @@ export class GameEngine extends Phaser.Scene {
     //this.input.setDefaultCursor('url(assets/cursors/default_cursor.cur), pointer');
     //this.pointer = this.input.activePointer;
 
+    this.ENTER_KEY = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+
     this.keyControls0();
 
     if(this.input.gamepad != null){
@@ -196,10 +198,11 @@ export class GameEngine extends Phaser.Scene {
 
      }
 
-    if(this.timedKeyPress(this.cursors.space, 0)){
+    if(this.timedKeyPress(this.ENTER_KEY, 0)){
+
+      this.events.emit('resetLevel');
 
       if(this.playerOne != null){
-        this.events.emit('resetLevel');
         this.playerGroup.clear(true, true);
         this.playerSensors.clear(true, true);
         this.iconGroup.clear(true, true);
@@ -494,6 +497,14 @@ export class GameEngine extends Phaser.Scene {
   //
   // }
 
+  setSpawnPoint(x, y){
+
+    this.playerStartPos.x = x*32;
+
+    this.playerStartPos.y = y*32;
+
+  }
+
   initPlayer(){
 
     this.playerOne = new Player(this, this.playerStartPos.x, this.playerStartPos.y, 'Mario', '');
@@ -704,7 +715,7 @@ export class GameEngine extends Phaser.Scene {
     .defineKey(0, 'B1', 'X')
     .defineKey(0, 'B2', 'Z')
     .defineKey(0, 'B0', 'X')
-    .defineKey(0, 'B5', 'SHIFT')
+    .defineKey(0, 'B5', 'C')
 
     this.playerControlsConfig(p);
 

@@ -44,6 +44,7 @@ export class LevelEditor extends Phaser.Scene {
   create(){
 
     this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
 
     this.PLUS_KEY = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.PLUS);
     this.MINUS_KEY = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS);
@@ -51,15 +52,40 @@ export class LevelEditor extends Phaser.Scene {
     this.itemKeyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
     this.itemKeyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Y);
 
+    this.spawnPoint = this.engine.add.image(this.engine.playerStartPos.x, this.engine.playerStartPos.y, 'Mario');
+
+    this.engine.events.on('resetLevel', function () {
+
+      if(this.spawnPoint != null){
+
+        this.spawnPoint.destroy(true, true);
+
+      }
+
+    }, this);
+
   }
 
   update(){
 
     this.engine.moveCamera();
 
+    this.spawnPoint.setPosition(this.engine.playerStartPos.x, this.engine.playerStartPos.y);
+
+    if(this.engine.timedKeyPress(this.keyP, 0)){
+
+      const worldPoint = this.pointer.positionToCamera(this.engine.mainCam);
+
+      var x = Math.round( ( worldPoint.x)/32 );
+      var y = Math.round( ( worldPoint.y)/32 );
+
+      this.engine.setSpawnPoint(x, y);
+
+    }
+
     if(this.engine.timedKeyPress(this.itemKeyUp, 0)){
 
-      if(this.alt_TileNo == 8){
+      if(this.alt_TileNo == 2){
 
         this.alt_TileNo = 0;
 
@@ -73,7 +99,7 @@ export class LevelEditor extends Phaser.Scene {
 
       if(this.alt_TileNo == 0){
 
-        this.alt_TileNo = 8;
+        this.alt_TileNo = 2;
 
       }else{
 
