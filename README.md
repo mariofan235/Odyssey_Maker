@@ -2,7 +2,7 @@
 
 A proof of concept 2D demake of the 2017 Nintendo Switch game Super Mario Odyssey.
 
-I created it using Phaser 3 and its tilemap engine. I was initially considering on switching physics engines due to several roadblocks, but I figured I should get some feedback first before making a decision.
+I created it using Phaser 3 and its tilemap engine. I was initially considering on switching physics engines due to several roadblocks, but I figured I should get some feedback first before making a decision. Feel free to use it however you like.
 
 ## Editor Controls
 
@@ -30,7 +30,7 @@ I created it using Phaser 3 and its tilemap engine. I was initially considering 
 * Roll - Crouch + Z
 * Ground Pound - Down in Midair
 * Dive - Ground Pound + Z
-* Backflip - Press Down for a few seconds, then jump
+* Backflip - Press Down briefly, then jump
 * Sideflip - Jump while braking
 * Wall Slide - Press in direction of wall while in midair
 * Twirl - Hold Up + C while on ground
@@ -42,9 +42,13 @@ I created it using Phaser 3 and its tilemap engine. I was initially considering 
 * Pound Jump - Jump immediately after ground pound impact
 * Wall Jump - Jump/Spin Jump after sliding down a wall
 * Long Jump - Crouch + X while moving
-* Roll Jump - Jump during a roll
+* Super Long Jump - Jump during a roll
 * Twirl Jump - Jump while twirling
+
+### Miscellaneous
+
 * Drill Spin - Down after activating a twirl jump
+* Super Roll - Roll immediately after ground pound impact (requires precise timing)
 
 ## Cap Moves
 
