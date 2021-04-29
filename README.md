@@ -59,3 +59,17 @@ I created it using Phaser 3 and its tilemap engine. I was initially considering 
 * Cap Jump/Vault - Run into Cappy or Jump on Cappy
 * Catch Jump - Jump after cap returns
 * Dive Jump - Throw Cap + Dive
+
+## Other Features
+
+* Multiplayer Support (Up to 4 Players; Still WIP)
+* Gamepad Support (set it to true in index.js)
+
+## Credits
+
+Due to dozens of hours researching and testing, this list is not complete
+
+* Nintendo for ownership of the Mario franchise
+* Sprites mainly from [The Spriters Resource](https://www.spriters-resource.com/) and [Mario Fan Games Galaxy](https://mfgg.net/index.php?act=main)
+* Main programming by myself
+* Everyone who is still supporting this project
