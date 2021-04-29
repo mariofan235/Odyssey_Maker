@@ -16,6 +16,8 @@ export class GameEngine extends Phaser.Scene {
     this.GAME_WIDTH = this.sys.game.canvas.width;
     this.GAME_HEIGHT = this.sys.game.canvas.height;
 
+    this.gameMode = 'editor';
+
     const pixelHeight = Math.round(this.GAME_HEIGHT/32)*32;
 
     //!00 screen limit
@@ -200,8 +202,6 @@ export class GameEngine extends Phaser.Scene {
 
     if(this.timedKeyPress(this.ENTER_KEY, 0)){
 
-      this.events.emit('resetLevel');
-
       if(this.playerOne != null){
         this.playerGroup.clear(true, true);
         this.playerSensors.clear(true, true);
@@ -209,13 +209,25 @@ export class GameEngine extends Phaser.Scene {
         this.effectsGroup.clear(true, true);
       }
 
-      this.scene.pause('stageEditor');
-
       this.playerCaps.clear(true, true);
 
-      this.initPlayer();
-      this.mainCam.setDeadzone(0, 12);
-      this.playerOne.cap.disableBody();
+      if(this.gameMode == 'editor'){
+
+        this.gameMode = 'player';
+        this.scene.pause('stageEditor');
+        this.initPlayer();
+        this.mainCam.setDeadzone(0, 12);
+        this.playerOne.cap.disableBody();
+
+      }else{
+
+        this.gameMode = 'editor';
+        this.scene.resume('stageEditor');
+        this.mainCam.stopFollow();
+
+      }
+
+      this.events.emit('resetLevel');
 
       //this.mainLayer.tileset[0].setImage(this.textures.get('terrain-1'));
 

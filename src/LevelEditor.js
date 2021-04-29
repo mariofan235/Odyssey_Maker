@@ -56,9 +56,13 @@ export class LevelEditor extends Phaser.Scene {
 
     this.engine.events.on('resetLevel', function () {
 
-      if(this.spawnPoint != null){
+      if(this.engine.gameMode == 'player'){
 
-        this.spawnPoint.destroy(true, true);
+        this.spawnPoint.setVisible(false);
+
+      }else{
+
+        this.spawnPoint.setVisible(true);
 
       }
 

@@ -13,8 +13,8 @@ Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
 * Press E to switch from Place/Erase Mode
 * Press T to alternate tiles
 * Press P to place Player Spawn Point from the mouse pointer
-* Press Enter to switch to spawn player
-* Refresh the webpage to restart the editor
+* Press Enter to switch to play mode
+* Refresh the webpage to reset the level
 
 ## Basic Player Controls
 
@@ -24,6 +24,7 @@ Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
 * Down to Crouch
 * Up to look upward
 * C to Spin Jump
+* Enter to switch back to edit mode
 
 ## Advanced Moves
 
