@@ -4,6 +4,8 @@ A proof of concept 2D demake of the 2017 Nintendo Switch game Super Mario Odysse
 
 I created it using Phaser 3 and its tilemap engine. I was initially considering on switching physics engines due to several roadblocks, but I figured I should get some feedback first before making a decision. Feel free to use it however you like.
 
+Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
+
 ## Editor Controls
 
 * Arrow Keys to Move Camera
