@@ -65,6 +65,7 @@ Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
 
 ## Other Features
 
+* 16:9 Aspect Ratio
 * Multiplayer Support (Up to 4 Players; Still WIP)
 * Gamepad Support (set it to true in index.js)
 
