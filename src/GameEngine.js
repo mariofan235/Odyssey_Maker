@@ -18,6 +18,8 @@ export class GameEngine extends Phaser.Scene {
 
     this.gameMode = 'editor';
 
+    console.log('yay');
+
     const pixelHeight = Math.round(this.GAME_HEIGHT/32)*32;
 
     //!00 screen limit
