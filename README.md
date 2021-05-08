@@ -44,7 +44,7 @@ Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
 * Triple Jump - Jump three times consecutively at max speed
 * Pound Jump - Jump immediately after ground pound impact
 * Wall Jump - Jump/Spin Jump after sliding down a wall
-* Long Jump - Crouch + X while moving
+* Long Jump - Crouch + C while moving
 * Super Long Jump - Jump during a roll
 * Twirl Jump - Jump while twirling
 
