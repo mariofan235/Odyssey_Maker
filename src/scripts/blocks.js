@@ -4,11 +4,7 @@ import {BrickBust} from './effects.js';
 
 function createTerrain(scene, tileX, tileY, tileNum, factorA, blockName){
 
-  if(tileNum == 0){
-
-
-
-  }
+  var b = null;
 
   if(tileNum >= 1 && tileNum <= 2){
 
@@ -21,6 +17,8 @@ function createTerrain(scene, tileX, tileY, tileNum, factorA, blockName){
     b = new CloudBlock(scene, tileX, tileY, 'block-7', blockName);
 
   }
+
+  return b;
 
 }
 
@@ -62,9 +60,9 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
 
     scene.add.existing(this);
 
-    scene.physics.add.collider(this, scene.playerGroup);
-
-    scene.physics.add.collider(this, scene.playerCaps, this.capSideCollide, null, this);
+    // scene.physics.add.collider(this, scene.playerGroup);
+    //
+    // scene.physics.add.collider(this, scene.playerCaps, this.capSideCollide, null, this);
 
     this.tileX = tileX;
     this.tileY = tileY;
@@ -75,24 +73,69 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
     this.npcStatus = 'none';
     this.hitDir = 'none';
 
+    this.blockID = blockID;
+
     this.setName(bName);
     //this.canCollide = true;
 
     // this.setDepth(-0.5);
 
-    if(blockID == 'block-0'){
+    this.scene.events.on('resetLevel', function () {
 
-      this.anims.play('block-0_anim');
+      if(!this.active){return;}
 
-    }
+      this.anims.stop();
+
+      if(this.npcStatus == 'hit'){
+
+        this.parentTile.setCollision(true, true, true, true);
+        this.setVisible(true);
+
+      }
+
+      this.npcStatus = 'none';
+
+
+    }, this);
+
+    this.scene.events.on('activateGame', function () {
+
+      if(!this.active){return;}
+
+      if(this.blockID =='block-0'){
+        this.anims.play('block-0_anim');
+      }
+    }, this);
+
+    this.scene.events.on('activateEditor', function () {
+      if(!this.active){return;}
+
+      this.setTexture(this.blockID, 0);
+
+    }, this);
+
+    this.scene.events.on('blockHit', function (obj) {
+      if(!this.active){return;}
+      this.playerCollide(obj);
+
+    }, this);
+
+    this.scene.events.on('sideBlockHit', function (obj) {
+      if(!this.active){return;}
+      this.playerSideCollide(obj);
+
+    }, this);
 
   }
 
-  capSideCollide(npc, cap){
+  capSideCollide(cap){
 
     if(!cap.capReturn && this.npcStatus == 'none'){
 
-      if(cap.launchDirection == 'x' && cap.body.onWall()){
+      var capTileY = this.scene.mainLayer.worldToTileY(cap.y);
+      var blockTileY = this.scene.mainLayer.worldToTileY(this.y)
+
+      if(cap.launchDirection == 'x' && capTileY == blockTileY){
 
         this.initHitAnim('bumpUp', 'up');
 
@@ -104,9 +147,80 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
 
   capBelowCollide(cap){
 
-    if(!cap.capReturn && cap.launchDirection == 'y_up' && cap.y > this.y){
+    if(!cap.capReturn){
 
-      if( Math.abs(cap.getCenter().x - this.getCenter().x) <=32 && cap.getTopCenter().y - this.getBottomCenter().y <= 2){
+      if(cap.launchDirection == 'y_up' && cap.y > this.y){
+
+        if( Math.abs(cap.getCenter().x - this.getCenter().x) <=32 && cap.getTopCenter().y - this.getBottomCenter().y <= 2){
+
+          this.initHitAnim('bumpUp', 'up');
+
+        }
+
+      }
+
+      if(cap.launchDirection == 'y_down' && cap.y < this.y){
+
+        if( Math.abs(cap.getCenter().x - this.getCenter().x) <=32 && this.getTopCenter().y - cap.getBottomCenter().y <= 2){
+
+          this.initHitAnim('bumpDown', 'down');
+
+        }
+
+      }
+
+    }
+
+
+
+  }
+
+  playerSideCollide(p){
+
+    if(this.npcStatus != 'none'){
+      return;
+    }
+
+    const pTileY = this.scene.mainLayer.worldToTileY(p.getCenter().y);
+
+    //Hit Side
+
+    if(p.specialMove == 'roll'){
+
+      if(pTileY == this.tileY){
+
+        //p.kickbackDelay = 2;
+
+        this.initHitAnim('bumpUp', 'up');
+
+      }
+
+    }else{
+
+      var pTileX = 0;
+
+      if(p.x < this.x){
+
+        pTileX = this.scene.mainLayer.worldToTileX(p.getCenter().x) + 1;
+
+      }else{
+
+        pTileX = this.scene.mainLayer.worldToTileX(p.getCenter().x) - 1;
+
+      }
+
+
+
+      // const inRangeX = Math.abs(p.getCenter().x - this.getCenter().x) > 22 && Math.abs(p.getCenter().x - this.getCenter().x) < 32;
+      //
+      // const inRangeY = Math.abs(p.getCenter().y - this.getCenter().y) < 42;
+      //
+
+
+
+      if(!p.body.onFloor() && pTileX == this.tileX && (Math.abs(pTileY - this.tileY) <= 1) ){
+
+        p.kickbackDelay = 2;
 
         this.initHitAnim('bumpUp', 'up');
 
@@ -118,32 +232,31 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
 
   playerCollide(p){
 
+    if(this.npcStatus != 'none'){
+      return;
+    }
+
+    //console.log(this.touchSensor(p, 'down'));
+
+    var inRangeX = Math.abs(p.topSensor.getCenter().x - this.getCenter().x) < 30;
+    var inRangeY = Math.abs(p.topSensor.getCenter().y - this.getCenter().y) < 28;
+
+    var botInRangeY = Math.abs(p.getBottomCenter().y - this.getTopCenter().y) < 22;
+
+    //console.log(Math.abs(p.bottomSensor.getCenter().y - this.getTopCenter().y));
+
     //Hit Below
-    if(this.getCenter().y < p.getCenter().y && p.body.onCeiling() && this.touchSensor(p, 'down')){
+    if(this.getCenter().y < p.topSensor.getCenter().y && inRangeX && inRangeY){
 
       this.initHitAnim('bumpUp', 'up');
 
     }else
 
     //Hit Above
-    if(this.getCenter().y > p.getCenter().y - 8 && this.touchSensor(p, 'up') && p.poundActive()){
+    if(this.getCenter().y > p.getCenter().y - 8 && p.poundActive() && inRangeX && botInRangeY){
 
       this.initHitAnim('bumpDown', 'down');
       p.poundResume = true;
-
-    }else
-
-    //Hit Side
-    if(p.specialMove == 'dive' || p.specialMove == 'longJump' || p.specialMove == 'roll'){
-
-      if( ( (!p.onFloor && p.specialMove != 'roll') || p.specialMove == 'roll') && this.touchSensor(p, 'side') ){
-
-        p.kickbackDelay = 2;
-
-        this.initHitAnim('bumpUp', 'up');
-
-      }
-
 
     }
 
@@ -157,6 +270,7 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
 
       this.scene.physics.overlap(this, p.topSensor, function () {
         hitSensor = (p.topSensor.blocked);
+        //hitSensor =
       });
 
     }
@@ -192,6 +306,10 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
     this.npcStatus = state;
     this.hitDir = dir;
 
+    if(this.blockID != 'block-1'){
+      return;
+    }
+
     var b = null;
 
     for(var i = 1; i <= 4; i++){
@@ -199,6 +317,9 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
       b = new BrickBust(this.scene, this.getCenter().x, this.getCenter().y, 'effect-0', i);
 
     }
+
+    // this.parentTile.setCollision(false, false, false, false);
+    // this.setVisible(false);
 
   }
 
@@ -227,6 +348,7 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
           this.npcStatus = 'hit';
           this.y = this.startY;
           this.setScale(1);
+          //this.parentTile.setCollision(false, false, false, false);
 
         }
 
@@ -266,26 +388,34 @@ class ItemBlock extends Phaser.GameObjects.Sprite {
 
   preUpdate(time, delta){
 
+    if(this.active == false){return;}
+
     super.preUpdate(time, delta);
 
     if(this.npcStatus == 'none'){
 
       this.scene.playerGroup.getChildren().forEach((p) => {
 
-        this.playerCollide(p);
+        //this.playerCollide(p);
 
       });
 
       this.scene.playerCaps.getChildren().forEach((c) => {
 
-        this.capBelowCollide(c);
+        //this.capBelowCollide(c);
 
       });
 
     }else if(this.npcStatus != 'hit'){
 
       this.hitBlockAnim();
-      this.destroy(true, true);
+
+      if(this.blockID == 'block-1'){
+
+      this.setVisible(false);
+      this.parentTile.setCollision(false, false, false, false);
+
+      }
 
     }else{
 

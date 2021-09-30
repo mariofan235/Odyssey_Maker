@@ -237,11 +237,11 @@ export class Cap extends Phaser.Physics.Arcade.Sprite {
 
       if(this.flipX){
         this.x -= 15;
-        this.twirlSpeed = -600;
+        this.twirlSpeed = -650;
         this.body.setVelocityX(this.twirlSpeed);
       }else{
         this.x += 15;
-        this.twirlSpeed = 600;
+        this.twirlSpeed = 650;
         this.body.setVelocityX(this.twirlSpeed);
       }
 

@@ -8,7 +8,6 @@ var Class = require('../../utils/Class');
 var Components = require('../components');
 var GameObject = require('../GameObject');
 var Line = require('../../geom/line/Line');
-var PIPELINES_CONST = require('../../renderer/webgl/pipelines/const');
 
 /**
  * @classdesc
@@ -23,7 +22,7 @@ var PIPELINES_CONST = require('../../renderer/webgl/pipelines/const');
  *
  * @extends Phaser.GameObjects.Components.AlphaSingle
  * @extends Phaser.GameObjects.Components.BlendMode
-  * @extends Phaser.GameObjects.Components.Depth
+ * @extends Phaser.GameObjects.Components.Depth
  * @extends Phaser.GameObjects.Components.GetBounds
  * @extends Phaser.GameObjects.Components.Mask
  * @extends Phaser.GameObjects.Components.Origin
@@ -204,7 +203,7 @@ var Shape = new Class({
          */
         this.height = 0;
 
-        this.initPipeline(PIPELINES_CONST.GRAPHICS_PIPELINE);
+        this.initPipeline();
     },
 
     /**
@@ -323,6 +322,27 @@ var Shape = new Class({
     {
         this.width = width;
         this.height = height;
+
+        return this;
+    },
+
+    /**
+     * Sets the display size of this Shape.
+     *
+     * Calling this will adjust the scale.
+     *
+     * @method Phaser.GameObjects.Shape#setDisplaySize
+     * @since 3.53.0
+     *
+     * @param {number} width - The display width of this Shape.
+     * @param {number} height - The display height of this Shape.
+     *
+     * @return {this} This Shape instance.
+     */
+    setDisplaySize: function (width, height)
+    {
+        this.displayWidth = width;
+        this.displayHeight = height;
 
         return this;
     },

@@ -27,6 +27,9 @@ export class LevelEditor extends Phaser.Scene {
     //Tiles that were destroyed during testing; TILE objects only
     this.respawnItems = [];
 
+    //Stores the graphics for block tiles
+    this.tileGraphics = [];
+
     this.tileID = [
         ['Terrain', '? Block', 'Brick Block', 'Used Block',
         'Hard Block', 'Invisible Block', 'Note Block', 'Spike Block', 'Cloud Block',
@@ -38,6 +41,14 @@ export class LevelEditor extends Phaser.Scene {
 
     this.input.setDefaultCursor('url(assets/cursors/default_cursor.cur), pointer');
     this.pointer = this.input.activePointer;
+
+    //Credit to Griffpatch for the auto tiling codes
+    this.tileArrangement = [
+      ['0110 0100', '0111 0101 0010', '0011 0001', '1110', '1111 0000 1010', '1011', '1100', '1101 1000', '1001',
+      '11101111', '11111011', '10111111', '11111110']
+    ];
+
+    // ['0110 0100', '0111 0101', '0011 0001', '1110', '1111 0000', '1011', '1100', '1101', '1001']
 
   }
 
@@ -54,19 +65,19 @@ export class LevelEditor extends Phaser.Scene {
 
     this.spawnPoint = this.engine.add.image(this.engine.playerStartPos.x, this.engine.playerStartPos.y, 'Mario');
 
-    this.engine.events.on('resetLevel', function () {
+    this.engine.events.on('activateGame', this.showSpawnPoint, this);
 
-      if(this.engine.gameMode == 'player'){
+    this.engine.events.on('activateEditor', function () {
 
-        this.spawnPoint.setVisible(false);
-
-      }else{
-
-        this.spawnPoint.setVisible(true);
-
-      }
+      this.spawnPoint.setVisible(true);
 
     }, this);
+
+  }
+
+  showSpawnPoint(){
+
+    this.spawnPoint.setVisible(false);
 
   }
 
@@ -165,13 +176,168 @@ export class LevelEditor extends Phaser.Scene {
 
       if(this.spawnItem == 'terrain'){
 
-        const tile = this.engine.mainLayer.putTileAt(this.alt_TileNo, x, y);
-
-        tile.setCollision(true, true, true, true);
+        this.createTerrain(x, y);
 
       }
 
     }
+
+  }
+
+  createTerrain(x, y){
+
+    var tile = null;
+
+    if(this.tileNo != 0){
+
+      tile = this.engine.mainLayer.putTileAt(30, x, y);
+
+      const block = createTerrain(this.engine, x, y, this.tileNo, 0, this.tileID[0][this.tileNo]);
+
+      tile.block = block;
+
+      block.parentTile = tile;
+
+      this.tileGraphics.push(block);
+
+      tile.setCollisionCallback(function (a) {
+
+        if(this.tilemap.scene.playerGroup.contains(a)){
+
+          //this.block.playerSideCollide(a);
+
+        }
+
+        if(this.tilemap.scene.playerCaps.contains(a)){
+
+          this.block.capSideCollide(a);
+          this.block.capBelowCollide(a);
+
+        }
+
+      }, tile);
+
+    }else{
+
+      tile = this.engine.mainLayer.putTileAt(this.alt_TileNo, x, y);
+
+      this.autoTileConfig(this.engine.levelMap);
+
+    }
+
+    tile.setCollision(true, true, true, true);
+
+    //const block = createTerrain(this.engine, x, y, 1, 0, '? Block');
+
+     //const tile = this.engine.mainLayer.putTileAt(this.alt_TileNo, x, y);
+    //
+
+
+
+     //this.autoTileConfig(this.engine.levelMap);
+
+
+  }
+
+
+
+  autoTileConfig(map){
+
+    var tile;
+
+    for(var a = 0; a < map.width; a++){
+
+      for(var b = 0; b < map.height; b++){
+
+        tile = this.engine.mainLayer.getTileAt(a, b);
+
+        if(tile != null && tile.index < 30){
+
+          this.autoTile_setBuild(a, b, tile);
+
+        }
+
+      }
+
+    }
+
+  }
+
+  autoTile_setBuild(x, y, t){
+
+    this.buildString = '';
+
+    var newTile = 0;
+
+    this.autoTile_findTile(x, y - 1);
+    this.autoTile_findTile(x + 1, y);
+    this.autoTile_findTile(x, y + 1);
+    this.autoTile_findTile(x - 1, y);
+
+    for(var i = 0; i < this.tileArrangement[0].length; i++){
+
+      if(this.tileArrangement[0][i].includes(this.buildString)){
+
+        newTile = i;
+        i = this.tileArrangement[0].length;
+
+      }
+
+    }
+
+    t.index = newTile;
+
+    if(t.index == 4 && this.buildString == '1111'){
+
+      this.autoTile_Corner(x, y, t);
+
+    }
+
+
+  }
+
+  autoTile_Corner(x, y, t){
+
+    this.buildString = '';
+
+    this.autoTile_findTile(x, y - 1);
+    this.autoTile_findTile(x + 1, y - 1);
+    this.autoTile_findTile(x + 1, y);
+    this.autoTile_findTile(x + 1, y + 1);
+    this.autoTile_findTile(x, y + 1);
+    this.autoTile_findTile(x - 1, y + 1);
+    this.autoTile_findTile(x - 1, y);
+    this.autoTile_findTile(x - 1, y - 1);
+
+    if(this.tileArrangement[0].indexOf(this.buildString) != -1){
+
+      t.index = this.tileArrangement[0].indexOf(this.buildString);
+
+    }
+
+  }
+
+  autoTile_findTile(x, y){
+
+    //If null is return, it means it has reached the edge of the tilemap/world
+
+    const findTile = this.engine.levelMap.getTileAt(x, y, true);
+
+    if(findTile == null || findTile.index != -1){
+      this.buildString += '1';
+    }else{
+
+      this.buildString += '0';
+
+    }
+
+    // if(this.engine.levelMap.hasTileAt(x, y)){
+    //   this.buildString += '1';
+    // }else{
+    //
+    //   this.buildString += '0';
+    //
+    // }
 
   }
 
@@ -182,7 +348,34 @@ export class LevelEditor extends Phaser.Scene {
     var x = Math.round( ( worldPoint.x - 8)/32 );
     var y = Math.round( ( worldPoint.y - 8)/32 );
 
-    this.engine.levelMap.removeTileAt(x, y, true, true, 0);
+    this.engine.levelMap.removeTileAt(x, y, false, true, 0);
+
+    this.deleteTileGraphic(x, y);
+
+    this.autoTileConfig(this.engine.levelMap);
+
+  }
+
+  deleteTileGraphic(x, y){
+
+    this.tileGraphics.forEach((obj, i) => {
+
+
+
+      if(obj.tileX == x && obj.tileY == y){
+
+        obj.destroy();
+        this.tileGraphics.splice(i, 1);
+
+        console.log(obj);
+
+        console.log(this.tileGraphics);
+
+        return;
+      }
+
+    });
+
 
   }
 

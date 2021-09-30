@@ -21,6 +21,8 @@
  */
 var ContainerCanvasRenderer = function (renderer, container, camera, parentMatrix)
 {
+    camera.addToRenderList(container);
+
     var children = container.list;
 
     if (children.length === 0)

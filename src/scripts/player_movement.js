@@ -12,7 +12,7 @@ function playerMovement(player, controls, onFloor){
   //Jump Script by Joan Ginard Mateo
   if(controls.direction.LEFT){
 
-    if(!player.leftSensor.blocked  && player.lockDirection != 'right'){
+    if(!player.leftSensor.blocked && player.lockDirection != 'right'){
 
       if(player.flipX){
           if(!slippery){
@@ -30,7 +30,7 @@ function playerMovement(player, controls, onFloor){
         }
 
         player.jumpCounter = 0;
-        player.jumpTimer = 0;
+        //player.jumpTimer = 0;
         player.speedTimer = 0;
       }
 
@@ -54,7 +54,7 @@ function playerMovement(player, controls, onFloor){
           player.flipX = !player.flipX;
         }
         player.jumpCounter = 0;
-        player.jumpTimer = 0;
+        //player.jumpTimer = 0;
         player.speedTimer = 0;
       }
 

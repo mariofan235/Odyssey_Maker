@@ -58,8 +58,8 @@ var UUID = require('../../utils/string/UUID');
  * @param {number} [y=0] - The vertical position of this Game Object in the world.
  * @param {number} [width=32] - The width of the Render Texture.
  * @param {number} [height=32] - The height of the Render Texture.
- * @property {string} [key] - The texture key to make the RenderTexture from.
- * @property {string} [frame] - the frame to make the RenderTexture from.
+ * @param {string} [key] - The texture key to make the RenderTexture from.
+ * @param {string} [frame] - The frame to make the RenderTexture from.
  */
 var RenderTexture = new Class({
 
@@ -1022,10 +1022,14 @@ var RenderTexture = new Class({
      * @method Phaser.GameObjects.RenderTexture#endDraw
      * @since 3.50.0
      *
+     * @param {boolean} [erase=false] - Draws all objects in this batch using a blend mode of ERASE. This has the effect of erasing any filled pixels in the objects being drawn.
+     *
      * @return {this} This Render Texture instance.
      */
-    endDraw: function ()
+    endDraw: function (erase)
     {
+        if (erase === undefined) { erase = this._eraseMode; }
+
         var renderer = this.renderer;
 
         var renderTarget = this.renderTarget;
@@ -1036,7 +1040,7 @@ var RenderTexture = new Class({
 
             var util = renderer.pipelines.setUtility();
 
-            util.blitFrame(canvasTarget, renderTarget, 1, false, false, this._eraseMode);
+            util.blitFrame(canvasTarget, renderTarget, 1, false, false, erase);
 
             renderer.resetScissor();
             renderer.resetViewport();

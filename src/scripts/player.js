@@ -62,6 +62,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.throwDelay = 0;
     this.capHold = false;
     this.onWall = false;
+    this.wallSlide_cancelTimer = 0;
     this.squishEffect = false;
     this.squishState = '';
     this.playerKickback_Timer = 0;
@@ -83,12 +84,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.leftSensor = scene.add.zone(this.getLeftCenter().x, this.getCenter().y, 5, 8);
     this.rightSensor = scene.add.zone(this.getRightCenter().x, this.getCenter().y, 5, 8);
 
-    scene.physics.world.enable([this.topSensor, this.bottomSensor, this.leftSensor, this.rightSensor]);
+    //scene.physics.world.enable([this.topSensor, this.bottomSensor, this.leftSensor, this.rightSensor]);
+
+    scene.playerSensors.add(this.topSensor);
+    scene.playerSensors.add(this.bottomSensor);
+    scene.playerSensors.add(this.leftSensor);
+    scene.playerSensors.add(this.rightSensor);
 
     this.topSensor.body.setAllowGravity(false);
     this.bottomSensor.body.setAllowGravity(false);
     this.leftSensor.body.setAllowGravity(false);
     this.rightSensor.body.setAllowGravity(false);
+
+    this.topSensor.player = this;
 
   }
 
@@ -162,7 +170,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       sensor.blocked = true;
 
     }, function (s, tile) {
-      return (tile.index != -1);
+      return (tile.index != -1 && tile.collides);
     }, this);
 
     this.scene.physics.overlap(sensor, this.scene.blockGroup, function (s, tile) {
@@ -400,13 +408,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   }
 
+  blockHit(){
+
+    if(this.body.onCeiling() && this.body.velocity.y <= 0){
+
+      //this.scene.events.emit('blockHit', {x: this.getCenter().x, y: this.topSensor.y, dir: 'up'});
+      this.scene.events.emit('blockHit', this);
+
+    }
+
+    if(this.body.onFloor() && this.poundActive()){
+
+      this.scene.events.emit('blockHit', this);
+
+    }
+
+  }
+
   preUpdate(time, delta){
 
     //onFloor
 
     super.preUpdate(time, delta);
 
+    //console.log(this.rightSensor.blocked);
+
     this.onFloor = this.body.onFloor() || this.npcFloor;
+
+    this.blockHit();
 
     //this.swimControls = true;
 
@@ -461,8 +490,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    var blockedLeft = this.leftSensor.blocked && this.flipX && this.controls.direction.LEFT;
-    var blockedRight = this.rightSensor.blocked && !this.flipX && this.controls.direction.RIGHT;
+    // var blockedLeft = this.leftSensor.blocked && this.flipX && this.controls.direction.LEFT;
+    // var blockedRight = this.rightSensor.blocked && !this.flipX && this.controls.direction.RIGHT;
+
+    var blockedLeft = this.leftSensor.blocked && this.flipX;
+    var blockedRight = this.rightSensor.blocked && !this.flipX;
 
     this.onWall = !this.onFloor && (blockedLeft || blockedRight);
 
@@ -651,7 +683,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   adjustHitbox(move){
 
-    if(move == "roll" || move == "groundPound"){
+    if(move == "roll" || move == "groundPound" || move == "longJump"){
       this.body.setSize(30, 30);
     }else{
       if( (this.anims.getName() == ("duck" + this.playerNo) || this.anims.getName() == ("duck_Hat" + this.playerNo) ) && this.specialMove == "none"){
@@ -684,7 +716,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
       if(this.controls.direction.UP){
         this.throwDirection = 'y_up';
-      }else if(this.controls.direction.DOWN && !this.moveAvail('groundPound') && !this.onFloor){
+      }else if(this.controls.direction.DOWN && !this.onFloor){
         this.throwDirection = 'y_down';
       }else{
         this.throwDirection = 'x';
@@ -745,7 +777,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if(this.throwDirection == 'x' || this.throwDirection == 'z'){
         targetDelay = 17;
       }else{
-        targetDelay = 2;
+
+        targetDelay = 1;
+
       }
 
       this.throwDelay++;
@@ -755,6 +789,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.wearingCap = false;
 
         this.cap.launch(this.throwSpeed, this.throwDirection);
+
+      }else if(this.throwDelay < targetDelay && ( (this.controls.direction.DOWN && !this.onFloor) || this.controls.direction.UP) ){
+
+        this.throwCapInit();
 
       }
 
@@ -1005,6 +1043,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
       this.specialMove = "roll";
       this.anims.play(this.getCostume('rollAnim'));
+      this.running = true;
 
     }
 
@@ -1043,6 +1082,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.specialMove = "none";
 
       }else if(this.body.onWall() || this.kickbackDelay != 0){
+
+        if(this.kickbackDelay == 0){
+          this.scene.events.emit('sideBlockHit', this);
+        }
 
         this.kickbackDelay++;
 
@@ -1177,11 +1220,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.body.setVelocityX(rollSpeed + (this.rollTimer*15));
           }
 
-          // var newFrameRate = 8 + Math.round( ( Math.abs(this.body.velocity.x/37.5) ) );
-          //
+           //var newFrameRate = 12 + Math.round( ( Math.abs(this.body.velocity.x/37.5) ) );
+          var newFrameRate = 0;
           // this.anims.setTimeScale(newFrameRate/12);
 
           if(this.body.onWall()){
+
+            if(this.kickbackDelay == 0){
+              this.scene.events.emit('sideBlockHit', this);
+            }
 
             this.kickbackDelay++;
 
@@ -1203,7 +1250,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           }
         }
 
-         if(this.controls.keyA.pressed && this.moveAvail('longJump') && this.onFloor && !tileAbove && !this.swimControls){
+         if(this.controls.keyZ.pressed && this.moveAvail('longJump') && this.onFloor && !tileAbove && !this.swimControls){
            this.specialMove = "longJump";
            this.body.setVelocityY(-400);
            this.longJumpDist = Math.abs(this.body.velocity.x*0.35);
@@ -1217,17 +1264,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
              this.specialJump( - 45 - Math.abs(this.body.velocity.x));
            }
 
-         }else if(this.controls.keyZ.pressed && !this.onFloor){
+         }else if(this.controls.keyA.pressed && this.onFloor){
+
+           this.specialJump(-160 - Math.abs(this.body.velocity.x)*0.18);
 
            // this.body.setVelocityX(this.body.velocity.x/2);
-           // this.specialMove = "none";
-           // this.rollTimer = 0;
+           this.specialMove = "none";
+           this.rollTimer = 0;
+           this.jumpCounter++;
+           this.multiJumpTimer = 1;
 
          }
 
       } else {
         if( ( ((this.controls.keyB.pressed) || this.rollTimer > 5) && this.onFloor) || !this.onFloor){
-          this.anims.play(this.getCostume('rollAnim'));
+          this.anims.play({key: this.getCostume('rollAnim'), frameRate: newFrameRate});
         }else{
           if(this.onFloor){
             if(tileAbove){
@@ -1275,7 +1326,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
       var hitWall = (!this.flipX && (this.body.blocked.right || this.rightSensor.blocked)) || (this.flipX && (this.body.blocked.left || this.leftSensor.blocked));
 
-      if(hitWall || this.kickbackDelay != 0){
+      if( (hitWall && !this.body.onFloor()) || this.kickbackDelay != 0){
 
         this.body.setVelocityX(0);
 
@@ -1285,6 +1336,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
           this.specialMove = "kickback";
           this.kickbackDelay = 0;
+
+          //this.blockHit();
+          this.scene.events.emit('sideBlockHit', this);
+
+
 
         }
 
@@ -1337,6 +1393,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.specialMove = 'none';
         this.body.allowGravity = true;
+        this.wallSlide_cancelTimer = 0;
 
       }else{
 
@@ -1344,34 +1401,48 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
           //this.body.setVelocityX(-20);
 
+          if(this.controls.direction.RIGHT){
+            this.wallSlide_cancelTimer++;
+          }else{
+            this.wallSlide_cancelTimer = 0;
+          }
+
           if(this.controls.keyA.pressed || this.controls.keyZ.pressed){
 
             this.wallJump(250, false);
 
-          }else if(this.onWall){
+          }else if(this.onWall && this.wallSlide_cancelTimer < 30){
 
             this.body.setVelocityY(150);
 
           }else{
             this.specialMove = 'none';
             this.body.allowGravity = true;
+            this.wallSlide_cancelTimer = 0;
           }
 
         }else{
 
           //this.body.setVelocityX(20);
 
+          if(this.controls.direction.LEFT){
+            this.wallSlide_cancelTimer++;
+          }else{
+            this.wallSlide_cancelTimer = 0;
+          }
+
           if(this.controls.keyA.pressed || this.controls.keyZ.pressed){
 
             this.wallJump(-250, true);
 
-          }else if(this.onWall){
+          }else if(this.onWall && this.wallSlide_cancelTimer < 30){
 
             this.body.setVelocityY(150);
 
           }else{
             this.specialMove = 'none';
             this.body.allowGravity = true;
+            this.wallSlide_cancelTimer = 0;
           }
 
         }

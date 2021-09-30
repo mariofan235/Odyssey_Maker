@@ -25,7 +25,7 @@ var CreateDOMContainer = function (game)
         'padding: 0; margin: 0;',
         'position: absolute;',
         'overflow: hidden;',
-        'pointer-events: none;',
+        'pointer-events: ' + config.domPointerEvents + ';',
         'transform: scale(1);',
         'transform-origin: left top;'
     ].join(' ');

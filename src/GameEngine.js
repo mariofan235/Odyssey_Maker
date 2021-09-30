@@ -219,15 +219,19 @@ export class GameEngine extends Phaser.Scene {
         this.mainCam.setDeadzone(0, 12);
         this.playerOne.cap.disableBody();
 
+        this.events.emit('activateGame');
+
       }else{
 
         this.gameMode = 'editor';
         this.scene.resume('stageEditor');
         this.mainCam.stopFollow();
 
-      }
+        this.events.emit('resetLevel');
 
-      this.events.emit('resetLevel');
+        this.events.emit('activateEditor');
+
+      }
 
       //this.mainLayer.tileset[0].setImage(this.textures.get('terrain-1'));
 
@@ -261,7 +265,7 @@ export class GameEngine extends Phaser.Scene {
 
     this.physics.world.setBounds(0, 0, this.levelSize.width, this.levelSize.height);
 
-    //this.mainCam.setZoom(1.25);
+    //this.mainCam.setZoom(0.5);
 
     for(var x = 1; x <= Math.ceil(this.levelSize.width/bx_width); x++){
 
@@ -747,6 +751,7 @@ export class GameEngine extends Phaser.Scene {
     .defineKey(1, 'B1', 'M')
     .defineKey(1, 'B2', 'N')
     .defineKey(1, 'B0', 'M')
+    .defineKey(1, 'B5', 'B')
 
   }
 
@@ -825,7 +830,10 @@ export class GameEngine extends Phaser.Scene {
 
     });
 
-    this.levelMap.addTilesetImage("terrain-0");
+    //Credit to sporadic-labs for tile extruder
+
+    //this.levelMap.addTilesetImage("terrain-0");
+    this.levelMap.addTilesetImage("terrain-0", null, 32, 32, 1, 2);
     // const tileset0 = this.levelMap.addTilesetImage("terrain-1");
     //
     // tileset0.firstgid = 4;

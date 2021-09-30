@@ -7,7 +7,7 @@ export class AssetLoader extends Phaser.Scene {
   preload(){
 
     // const costumeList = [1, 6, 5, 4];
-    const costumeList = [0, 0, 0, 0];
+    const costumeList = [0, 1, 0, 0];
 
     this.load.image('backgroundX', 'assets/graphics/backgrounds/Background0_X.png');
     this.load.image('backgroundY', 'assets/graphics/backgrounds/Background0_Y.png');
@@ -34,7 +34,7 @@ export class AssetLoader extends Phaser.Scene {
 
     //Terrain
 
-    for(var i = 0; i <= 2; i++){
+    for(var i = 0; i <= 3; i++){
 
       this.load.image('terrain-' + i, 'assets/graphics/terrain/terrain_' + i + '.png');
 
@@ -84,7 +84,7 @@ export class AssetLoader extends Phaser.Scene {
 
     var levelConfig = {
       width: 2,
-      height: 2,
+      height: 4,
       numPlayers: 1,
       startX: 5,
       startY: 2,
