@@ -20,7 +20,7 @@ Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
 
 * Left/Right to run (accelerates automatically)
 * X to Jump
-* Z to throw Cappy
+* Z to throw Cappy - press up and down quickly to change directions
 * Down to Crouch
 * Up to look upward
 * C to Spin Jump
@@ -45,7 +45,7 @@ Live Game: https://mariofan235.github.io/Odyssey_Maker/build/index.html
 * Pound Jump - Jump immediately after ground pound impact
 * Wall Jump - Jump/Spin Jump after sliding down a wall
 * Long Jump - Crouch + C while moving
-* Super Long Jump - Jump during a roll
+* Super Long Jump - C during a roll
 * Twirl Jump - Jump while twirling
 
 ### Miscellaneous
